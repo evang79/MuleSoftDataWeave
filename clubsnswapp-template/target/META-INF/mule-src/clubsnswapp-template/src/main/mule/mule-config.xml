@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <configuration-properties file="mule-artifact.properties"/>
+    <salesforce:sfdc-config doc:id="d7bb2c07-dfee-440c-8c91-df5457578f86" doc:name="Salesforce" doc:timestamp="1623423490386" name="salesforce">
+        <salesforce:basic-connection username="eng@cunning-wolf-7fqnef.com" password="Regards2" securityToken="jItHwhcrqTkaOpsnzo5wpv9oV"/>
+    </salesforce:sfdc-config>
+    <sftp:config doc:id="e951ec23-3c81-4af5-a38e-ffb5792d6639" doc:name="SFTP" doc:timestamp="1623424213991" name="sftp">
+        <sftp:connection host="eksprod.tools.mulesoft.com" port="31624" username="evamave" password="EvaMaveNg123456#"/>
+    </sftp:config>
+    <db:config doc:id="00c5bf53-a731-4b7c-93fa-e6dde591cc71" doc:name="Database" doc:timestamp="1623437348786" name="database">
+        <db:my-sql-connection host="eksprod.tools.mulesoft.com" port="31878" user="evamave" password="EvaMaveNg123456#" database="EvaDB"/>
+    </db:config>
+	<flow doc:id="02888896-0a56-4d80-9ece-7656290ab94f" doc:name="Salesforce to SFTP (ArrayObj2CSV)" doc:timestamp="1623423174787" name="salesforce_to_sftp_(arrayobj2csv)">
+        <scheduler doc:id="0bb4a676-3ba3-46d2-bd55-4f33b42397b4" doc:name="Scheduler" doc:timestamp="1623427048109">
+            <scheduling-strategy>
+                <fixed-frequency frequency="1" timeUnit="MINUTES"/>
+            </scheduling-strategy>
+        </scheduler>
+        <salesforce:query config-ref="salesforce" doc:id="e130d3ca-2d8c-4815-9bc7-246fb0ee9927" doc:name="Query" doc:timestamp="1623811327770">
+            <salesforce:salesforce-query>SELECT accountNumber__c,Billing_address1__c,Billing_address2__c,Billing_city__c,Billing_country__c,Billing_postcode__c,Billing_state__c,contractEnd__c,contractStart__c,CreatedById,CreatedDate,distributor__c,Email__c,Id,IsDeleted,LastActivityDate,LastModifiedById,LastModifiedDate,LastReferencedDate,LastViewedDate,Name,Name__c,OwnerId,Phone__c,website__c,Property__c,SystemModstamp,tariffType__c FROM Account__c</salesforce:salesforce-query>
+            <salesforce:parameters>#[%dw 2.0
+output application/java  
+---
+{
+  MyKey: "Value"
+}]</salesforce:parameters>
+        </salesforce:query>
+		<ee:transform doc:id="9c85abe9-d280-4f44-bb65-41c7b01a4f7c" doc:name="Transform" doc:timestamp="1623811494810">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/csv  
+---
+payload map (value0, index0) -> {
+  "accountNumber__c": value0.accountNumber__c,
+  "Billing_address1__c": value0.Billing_address1__c,
+  "Billing_address2__c": value0.Billing_address2__c,
+  "Billing_city__c": value0.Billing_city__c,
+  "Billing_country__c": value0.Billing_country__c,
+  "Billing_postcode__c": value0.Billing_postcode__c,
+  "Billing_state__c": value0.Billing_state__c,
+  "distributor__c": value0.distributor__c,
+  "Email__c": value0.Email__c,
+  "Name__c": value0.Name__c,
+  "OwnerId": value0.OwnerId,
+  "Phone__c": value0.Phone__c,
+  "Website__c": value0.Website__c,
+  "Property__c": value0.Property__c,
+  "tariffType__c": value0.tariffType__c
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <sftp:write config-ref="sftp" doc:id="007b6cd2-e935-4d5e-a9cb-2854b9aeb34b" doc:name="Write" doc:timestamp="1623426694377" path="/upload/AccountRecord.csv"/>
+    
+</flow>
+    <flow doc:id="3f8c5753-88d8-42d2-82a0-ea8ce7f76641" doc:name="MySQLver8 to SFTP (ArrayObj2json)" doc:timestamp="1623429759794" name="mysqlver8_to_sftp_(arrayobj2json)">
+        <scheduler doc:id="86eeb561-4502-450c-9a79-d3ecff8ed3bb" doc:name="Scheduler" doc:timestamp="1623429784942">
+            <scheduling-strategy>
+                <fixed-frequency/>
+            </scheduling-strategy>
+        </scheduler>
+        <db:select config-ref="database" doc:id="c3b1f921-8f58-4c73-902d-5a227b25358f" doc:name="Select" doc:timestamp="1623437635100">
+            <db:sql>SELECT * FROM EvaDB.customers;</db:sql>
+        </db:select>
+        <ee:transform doc:id="acae4958-dd79-47f2-b217-1ba9d1289670" doc:name="Transform" doc:timestamp="1623815592105">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json  
+---
+{
+  customerNumber: payload[0].customerNumber,
+  customerName: payload[0].customerName,
+  contactLastName: payload[0].contactLastName,
+  contactFirstName: payload[0].contactFirstName,
+  phone: payload[0].phone,
+  addressLine1: payload[0].addressLine1,
+  city: payload[0].city,
+  postalCode: payload[0].postalCode,
+  country: payload[0].country,
+  salesRepEmployeeNumber: payload[0].salesRepEmployeeNumber,
+  creditLimit: payload[0].creditLimit
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <sftp:write config-ref="sftp" doc:id="8a170f91-2c42-4e7f-8509-90a2bcd72f00" doc:name="Write" doc:timestamp="1623430568056" path="/upload/customers.json"/>
+    </flow>
+    <flow doc:id="047d990a-0835-4b54-a1b1-51fdc08e8d92" doc:name="MySQLver8 to SFTP (ArrayObj2csv)" doc:timestamp="1623436616475" name="mysqlver8_to_sftp_(arrayobj2csv)">
+        <scheduler doc:id="344e353e-e020-425b-8953-4e6a58dee66a" doc:name="Scheduler" doc:timestamp="1623436627714">
+            <scheduling-strategy>
+                <fixed-frequency/>
+            </scheduling-strategy>
+        </scheduler>
+        <db:select config-ref="database" doc:id="1a34c127-a5ba-4535-ae17-d9bc5cb38bd4" doc:name="Select" doc:timestamp="1623436715255">
+            <db:sql>SELECT * FROM EvaDB.employees;</db:sql>
+        </db:select>
+        <ee:transform doc:id="27c5c5f8-5ba5-45c8-a28d-8eb1a3d976fa" doc:name="Transform" doc:timestamp="1623817218498">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/csv  
+---
+payload map (value0, index0) -> {
+  "email": value0.email,
+  "employeeNumber": value0.employeeNumber,
+  "extension": value0.extension,
+  "firstName": value0.firstName,
+  "jobTitle": value0.jobTitle,
+  "lastName": value0.lastName,
+  "officeCode": value0.officeCode,
+  "reportsTo": value0.reportsTo
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <sftp:write config-ref="sftp" doc:id="a0cb4f36-159b-446d-8c45-d90f65db27a5" doc:name="Write" doc:timestamp="1623817389581" path="/upload/employees.csv"/>
+    </flow>
+</mule>

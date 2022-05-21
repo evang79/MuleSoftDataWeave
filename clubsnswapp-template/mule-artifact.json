@@ -1,0 +1,23 @@
+{
+  "configs": [
+    "mule-config.xml"
+  ],
+  "secureProperties": [
+    "https.port",
+    "http.port"
+  ],
+  "redeploymentEnabled": true,
+  "name": "ClubsNSWApp",
+  "minMuleVersion": "4.2.2",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedResources": []
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="Custom Type - CSV - Account_c" format="csv">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: array
+items:
+    properties:
+        accountNumber__c:
+            type: string
+        Billing_address1__c:
+            type: string
+        Billing_address2__c:
+            type: string
+        Billing_city__c:
+            type: string
+        Billing_country__c:
+            type: string
+        Billing_postcode__c:
+            type: string
+        Billing_state__c:
+            type: string
+        contractStart__c:
+            type: string
+        contractEnd__c:
+            type: string
+        CreatedDate:
+            type: string
+        distributor__c:
+            type: string
+        Email__c:
+            type: string
+        Name__c:
+            type: string
+        OwnerId:
+            type: string
+        Phone__c:
+            type: string
+        Website__c:
+            type: string
+        Property__c:
+            type: string
+        tariffType__c:
+            type: string]]></types:shape>
+    </types:type>
+    <types:type name="Custom Type - JSON - customers" format="json">
+      <types:example format="json"><![CDATA[    {
+        "customerNumber" : 103,
+        "customerName" : "Atelier graphique",
+        "contactLastName" : "Schmitt",
+        "contactFirstName" : "Carine ",
+        "phone" : "40.32.2555",
+        "addressLine1" : "54, rue Royale",
+        "addressLine2" : null,
+        "city" : "Nantes",
+        "state" : null,
+        "postalCode" : "44000",
+        "country" : "France",
+        "salesRepEmployeeNumber" : 1370,
+        "creditLimit" : 21000.00
+    }]]></types:example>
+    </types:type>
+    <types:type name="Custom Type - JSON - employees" format="json">
+      <types:example format="json"><![CDATA[    {
+        "employeeNumber" : 1002,
+        "lastName" : "Murphy",
+        "firstName" : "Diane",
+        "extension" : "x5800",
+        "email" : "dmurphy@classicmodelcars.com",
+        "officeCode" : "1",
+        "reportsTo" : null,
+        "jobTitle" : "President"
+    }]]></types:example>
+    </types:type>
+    <types:type name="Custom Type - CSV - customers" format="csv">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: array
+items:
+    properties:
+        customerNumber:
+            type: number
+        customerName:
+            type: string
+        contactLastName:
+            type: string
+        contactFirstName:
+            type: string
+        phone:
+            type: string
+        addressLine1:
+            type: string
+        addressLine2:
+            type: string
+        city:
+            type: string
+        state:
+            type: string
+        postalCode:
+            type: string
+        country:
+            type: string
+        salesRepEmployeeNumber:
+            type: number
+        creditLimit:
+            type: number]]></types:shape>
+    </types:type>
+    <types:type name="Custom Type - CSV - employees" format="csv">
+      <types:shape format="raml"><![CDATA[
+#%RAML 1.0 DataType
+type: array
+items:
+    properties:
+        employeeNumber:
+            type: number
+        lastName:
+            type: string
+        firstName:
+            type: string
+        extension:
+            type: string
+        email:
+            type: string
+        officeCode:
+            type: string
+        reportsTo:
+            type: number
+        jobTitle:
+            type: string]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#9c85abe9-d280-4f44-bb65-41c7b01a4f7c">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="Custom Type - CSV - Account_c"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#acae4958-dd79-47f2-b217-1ba9d1289670">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="Custom Type - JSON - customers"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#27c5c5f8-5ba5-45c8-a28d-8eb1a3d976fa">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="Custom Type - CSV - employees"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
