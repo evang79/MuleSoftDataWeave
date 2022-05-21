@@ -1,0 +1,12 @@
+{
+	"Name" : null,
+	"Gender" : null,
+	"Salary" : null,
+	"Billing_address" : null,
+	"Billing_state" : null,
+	"Billing_city" : null,
+	"Billing_country" : null,
+	"Billing_postcode" : null,
+	"Email" : null,
+	"Phone" : null
+}

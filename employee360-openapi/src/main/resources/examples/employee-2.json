@@ -1,0 +1,41 @@
+{
+    "Message": "Your employee details below is found. This employee record has now been added to Salesforce CRM",
+    "Employee": {
+        "Name": {
+            "title": [
+                "Mr"
+            ],
+            "first": "Andrew",
+            "last": [
+                "Johnson"
+            ]
+        },
+        "Gender": "male",
+        "Billing_address": {
+            "number": [
+                7620
+            ],
+            "name": [
+                "Hardy Street"
+            ]
+        },
+        "Billing_state": [
+            "Hawke'S Bay"
+        ],
+        "Billing_city": [
+            "Blenheim"
+        ],
+        "Billing_country": [
+            "New Zealand"
+        ],
+        "Billing_postcode": [
+            19892
+        ],
+        "Email": [
+            "cameron.johnson@example.com"
+        ],
+        "Phone": [
+            "(911)-200-9796"
+        ]
+    }
+}

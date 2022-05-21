@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:commerce-cloud-dataapi="http://www.mulesoft.org/schema/mule/commerce-cloud-dataapi" xmlns:netsuite-restlet="http://www.mulesoft.org/schema/mule/netsuite-restlet"
+	xmlns:netsuite="http://www.mulesoft.org/schema/mule/netsuite"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule/netsuite/current/mule-netsuite.xsd
+http://www.mulesoft.org/schema/mule/netsuite-restlet http://www.mulesoft.org/schema/mule/netsuite-restlet/current/mule-netsuite-restlet.xsd
+http://www.mulesoft.org/schema/mule/commerce-cloud-dataapi http://www.mulesoft.org/schema/mule/commerce-cloud-dataapi/current/mule-commerce-cloud-dataapi.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2f998a8f-a621-45cc-920d-259be929c852" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="d00e92b6-bae0-4d03-b8b3-2c5e9c019d71" >
+		<salesforce:basic-connection username="eng@cunning-wolf-7fqnef.com" password="Regards2" securityToken="jItHwhcrqTkaOpsnzo5wpv9oV" />
+	</salesforce:sfdc-config>
+	<commerce-cloud-dataapi:config name="Commerce_Cloud_B2C_Data_Connector_Config" doc:name="Commerce Cloud B2C Data Connector Config" doc:id="4d2dd0c9-14fb-45d1-86a3-57390c251302" >
+		<commerce-cloud-dataapi:am-oauth2-connection baseUri="https://zzap-141.sandbox.us02.dx.commercecloud.salesforce.com">
+			<commerce-cloud-dataapi:oauth-client-credentials clientId="a536e868-2fcb-410f-85a5-ee216015d385" clientSecret="8VdhGRV&amp;ulZCrWdUQcap69NNhnZtza1UJ0k3SC" />
+		</commerce-cloud-dataapi:am-oauth2-connection>
+	</commerce-cloud-dataapi:config>
+	<flow name="employee360-openapiFlow1" doc:id="7a6fcf07-c988-47cd-8a42-8add21ada32d" >
+		<http:listener doc:name="Listener" doc:id="7cbef657-01f8-418f-b001-0f9875d6a9aa" config-ref="HTTP_Listener_config" path="test2"/>
+		<commerce-cloud-dataapi:get-customer-customers-organizations-customer-lists-customers-by-version-organization-id-list-id-customer-no doc:name="Get Customer From Customer List" doc:id="c3c62929-520f-4e9a-9972-86e85e1bb920" config-ref="Commerce_Cloud_B2C_Data_Connector_Config" version="21_10" organizationId="f_ecom_zzap_141" listId="alpine" customerNo="00000001"/>
+		<ee:transform doc:name="Transform Message" doc:id="f5b97847-e3c7-4a1c-b17d-2f3a8f580d4a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="employee360-openapiFlow" doc:id="7f83f3df-9e91-4f1d-946a-6addbd9e9ad6" >
+		<http:listener doc:name="Listener" doc:id="a6313c6a-7f69-414b-8e88-16de9af0e31f" path="/find" config-ref="HTTP_Listener_config"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="e23c2994-a00e-447b-9c17-123b2881e6ed" >
+			<route >
+				<http:request method="GET" doc:name="Request1" doc:id="4d5d3541-5316-4aaa-b190-c7b506fae6d7" url="https://api.genderize.io/">
+					<http:query-params><![CDATA[#[output application/java
+---
+{
+	"name" : attributes.queryParams.name
+}]]]></http:query-params>
+				</http:request>
+			</route>
+			<route >
+				<http:request method="GET" doc:name="Request2" doc:id="4c7531c2-d8c7-4ad2-8e4e-e5f08253a7f0" url="https://api.agify.io/">
+					<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"name" : attributes.queryParams.name
+}]]]></http:query-params>
+				</http:request>
+			</route>
+			<route >
+				<http:request method="GET" doc:name="Request" doc:id="b62fd6eb-273d-459c-a4b7-bdc25bcaa57d" url="https://randomuser.me/api/"/>
+			</route>
+		</scatter-gather>
+		<set-variable value='#[payload]' doc:name="Set employee data" doc:id="c2a83f75-1d93-4b87-82b2-9cf376d28dfe" variableName="employee"/>
+		<ee:transform doc:name="Transform Message" doc:id="baf9d11c-001b-4433-8ace-eabe3081db93" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload."2".payload.results map ( result , indexOfResult ) -> {
+	Name__c: payload."1".payload.name ++ " " ++ result.name.last,
+	Gender__c: payload."0".payload.gender,
+	Salary__c: (payload."0".payload.count + (result.dob.age*10)) as String,
+	Billing_address1__c: result.location.street.number as String ++ " " ++ result.location.street.name as String,
+	Billing_state__c: result.location.state as String,
+	Billing_city__c: result.location.city as String,
+	Billing_country__c: result.location.country as String,
+	Billing_postcode__c: result.location.postcode as String,
+	Email__c: result.email,
+	Phone__c: result.phone
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create doc:name="Create" doc:id="265dd77f-8c58-4fe0-aef2-7a565ed03021" config-ref="Salesforce_Config" type="Account__c"/>
+		<set-payload value="#[vars.employee]" doc:name="Set Payload" doc:id="67bc776f-8be9-484b-9cdc-131429a4cf71" />
+		<ee:transform doc:name="Transform Message" doc:id="7a69752c-6c36-4454-bbd1-a22b870419c6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Message : "Your employee details below is found. This employee record has now been added to Salesforce CRM",
+	
+	Employee : {
+		Name : {
+			title : payload."2".payload.results.name.title,
+			first : payload."1".payload.name,
+			last : payload."2".payload.results.name.last
+		},
+		Gender : payload."0".payload.gender,
+		Salary : payload."0".payload.count,
+		Billing_address : {
+			number : payload."2".payload.results.location.street.number,
+			name : payload."2".payload.results.location.street.name
+		},
+		Billing_state : payload."2".payload.results.location.state,
+		Billing_city : payload."2".payload.results.location.city,
+		Billing_country : payload."2".payload.results.location.country,
+		Billing_postcode : payload."2".payload.results.location.postcode,
+		Email : payload."2".payload.results.email,
+		Phone : payload."2".payload.results.phone
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
